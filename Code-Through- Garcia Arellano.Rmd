@@ -1,0 +1,185 @@
+---
+title: 'CPP 527: Code-Through Assignment'
+author: "Joanna Garcia Arellano"
+date: "2/29/2020"
+output: 
+  html_document:
+  theme: sandstone
+  highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Sentiment Analysis
+## This code-through will take the text from a single article to conduct a sentiment analysis.
+### The article used for this code through can be located through the link below:
+[https://www.washingtonpost.com/world/2020/02/29/coronavirus-live-updates/](https://www.washingtonpost.com/world/2020/02/29/coronavirus-live-updates/)
+---
+#### Install packages required
+##### For this simple sentiment analysis, we will be using the text mining packages "tm" and "stringr
+
+```{r}
+#install text mining package
+library(tm)
+#install packages
+library(stringr)
+```
+
+#### Step 1: 
+##### Locate the article/ text you to analyze. You will need to save the plain text of this article/ text into a simple .txt file in your working directory.
+##### You can confirm the file path for your working directory using the 'get working directory' function 'getwd().
+
+```{r}
+#save the text only of your selected article into an .txt file
+#save file into your working directory
+#you can check file path for working directory by using getwd()
+ getwd()
+```
+#### Step 2: 
+##### Once your plain text document has been saved, you can utilize the readLines() function to read the text from your selected document into R.
+##### This function will read the text from the document line by line, we will change this in the next step.
+```{r}
+#use function readLines() to read text from your selected document
+#ensure that your document is saved as plan text- no rich text!
+#this function will read the text from the document line by line
+
+readLines("article1.txt")
+```
+#### Step 3: 
+##### Since the readLines function treats each line as a separate element in a character vector, we collapse the text into one single character vector element.
+##### Note that you can always review the structure of your file using the structure function 'str()'.
+```{r}
+#readLines treats each line as separate element in character vector
+#you can review structure of the file using structure function str(readLines("article1.txt))
+#we need to treat text as one element, can do so using paste function and collapse argument
+
+paste(readLines("article1.txt"), collapse = " ")
+article1<- paste(readLines("article1.txt"), collapse = " ")
+```
+#### Step 4:
+##### We will now work on cleaning up the text.
+##### We will begin by removing any special characters using the 'gsub' function.
+```{r}
+#begin cleaning up text 
+#remove punctuation and any special characters that are not needed for analysis using gsub function
+#\\W refers to anything that is not a word
+#we are replacing any of these characters in our text with a blank space
+
+gsub(pattern="\\W", replace=" ", article1)
+article1_2<- gsub(pattern="\\W", replace=" ", article1)
+
+```
+##### Next, we will remove any digits using 'gsub' function
+```{r}
+#\\d refers to any digits, 0-9
+#again, we will replace any digit characters with a blank space
+gsub(pattern = "\\d", replace= " ", article1_2)
+article1_3<-gsub(pattern = "\\d", replace= " ", article1_2)
+```
+##### Use the 'tolower' function to make all letters lower case
+```{r}
+#use 'tolower' function to make all letters lower case
+tolower(article1_3)
+
+article1_4<- tolower(article1_3)
+```
+
+##### Remove filler words easily by using the 'removeWords' function 
+```{r}
+#remove filler words like the, and, a, to, or using the stopwords function
+removeWords(article1_4, stopwords())
+article1_5<- removeWords(article1_4, stopwords())
+```
+##### Remove any single letter characters remaining in the text
+```{r}
+#remove single letter words remaining in text
+gsub(pattern ="\\b[A-z]\\b{1}", replace=" ", article1_5)
+article1_6<-gsub(pattern ="\\b[A-z]\\b{1}", replace=" ", article1_5)
+```
+##### Clean up any extra blanks that we have created using the stripWhitespace function
+```{r}
+#clean up any extra blanks that have been created using "stripWhitespace" function
+stripWhitespace(article1_6)
+article1_7<- stripWhitespace(article1_6)
+
+```
+#### Step 5:
+##### Now that our text data has been cleaned up, we will use the string split function to split up all the words in our text.
+##### Then, we must ensure our vectors are character outputs, not lists.
+##### Note: you can use the class function 'class()' to check the type of output vector you are receiving.
+```{r}
+#use the string split function to split up all the words in our text
+#"\\s+" refers to any number of spaces
+
+str_split(article1_7, pattern="\\s+")
+
+text<- str_split(article1_7, pattern ="\\s+")
+
+#use the unlist function to make sure our outputs are character vectors rather than a list
+unlist(text)
+text<- unlist(text)
+
+#output will look almost identical but you can check type of vector using class function
+
+class(text)
+
+```
+
+#### Step 6: 
+##### We can now begin the process of sentiment analysis. 
+##### First, we will scan in our text documents containing the positive and negative words that will need to be saved in our working directory as plain .txt docs.
+##### The link for both lists can be located below:
+[http://ptrckprry.com/course/ssd/data/positive-words.txt] 
+[http://ptrckprry.com/course/ssd/data/negative-words.txt]
+
+##### Note: this is not the only way to conduct sentiment analysis. In fact, the tidytext package already contains several sentiment lexicons to access. However, for the purposes of this simplistic code-through, we will make this as simple as possible.
+```{r}
+#save lexicon of positive and negative words into txt file and save files into working directory in separate documents
+#scan in the txt document containing positive words
+
+positivelexicon<- scan('positivelexicon.txt', what='character', comment.char = ";")
+#scan in txt document containing negative words
+
+negativelexicon<- scan('negativelexicon.txt', what='character', comment.char = ";")
+```
+
+#### Step 7: 
+##### We will use the match function to determine how many words in our text match with the words in the positive and negative lexicons.
+```{r}
+#use match() function to 
+match(text, positivelexicon)
+match(text, negativelexicon)
+```
+
+##### We will make this easy to read by using the sum 'sum()' and is not na function '!is.na() to determine number of matching words in each category: positive and negative. 
+```{r}
+#is not na will provide a FALSE for any NAs and a TRUE for any non NAs (which are matches for positive/ negative words)
+#we will then use the sum function to obtain totals of matches
+
+
+
+!is.na(match(text,positivelexicon ))
+sum(!is.na(match(text,positivelexicon )))
+```
+
+```{r}
+#complete same steps as above for the negative lexicon
+!is.na(match(text,negativelexicon ))
+sum(!is.na(match(text,negativelexicon )))
+```
+
+##### Now we can calculate the sentiment score analysis by finding the difference between the positive word count and the negative word count.
+```{r}
+#calculate the sentiment score analysis by finding the difference between the positive word count and negative word count
+
+score<- sum(!is.na(match(text,positivelexicon ))) - sum(!is.na(match(text,negativelexicon )))
+
+score
+```
+#### Conclusion:
+
+##### A score of -21 indicates an overall negative sentiment in this article. In a real world implementation, we would likely be looking at a collection of text documents. A collection of text documents is referred to as a corpus. You could then calculate average sentiment scores for each of your text documents and even create a histogram to view distribution of scores in the corpus.
+
+---
